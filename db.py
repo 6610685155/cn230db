@@ -146,11 +146,11 @@ for index,anime in enumerate(top_10_af_animes, 1):
 print("\n-------------------------------------")
 print("\nMost 3 genre in anime")
 cursor.execute('SELECT genres FROM anime')
-rows = cursor.fetchall()
+most_genre = cursor.fetchall()
 
 genre_counts = {} # เก็บจำนวนของแต่ละ genre
 
-for row in rows:
+for row in most_genre:
     genres = row[0]  # ข้อมูล genres ที่ดึงออกมา เช่น "Action, Adventure, Drama"
     if genres:  
         for genre in genres.split(', '): # แยก genres และนับจำนวนของแต่ละ genre
