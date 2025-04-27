@@ -119,7 +119,7 @@ cursor.execute('''
 ''')
 top_5_animes = cursor.fetchall()
 for index,anime in enumerate(top_5_animes, 1): #ใช้ enumerate เพื่อใส่เลขอันดับตามจำนวนการวนซ้ำ โดยให้ index เริ่มที่ 1
-    print(f"{index}. {anime[0]}, Score: {anime[1]}")
+    print(f"{index}. {anime[0]}: Score = {anime[1]}")
     index += 1
 
 #---------------------------------------------------------------------------------------
@@ -167,13 +167,46 @@ for row in most_genre:
 sorted_genres = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)[:3]
 
 for index,(genre, count) in enumerate(sorted_genres, 1):
-    print(f"{index}. {genre}, count = {count}")
+    print(f"{index}. {genre}: count = {count}")
+
+#---------------------------------------------------------------------------------------
+
+# 3 อันดับแนว(genre) ที่ได้รับความนิยมมากที่สุด
+print("\n-------------------------------------")
+print("\nTop 3 Genre with highest popularity")
+
+cursor.execute("SELECT genres, popularity FROM anime WHERE genres IS NOT NULL AND popularity IS NOT NULL")
+rows = cursor.fetchall()
+
+genre_popularity = {}
+
+for genres, popularity in rows:
+    genre_list = genres.split(', ')  # แยก genres ด้วย ', '
+    for genre in genre_list:
+        if genre == '':  # ข้ามถ้า genre ว่าง
+            continue
+        if genre not in genre_popularity:
+            genre_popularity[genre] = {'total_popularity': 0, 'count': 0}
+        
+        genre_popularity[genre]['total_popularity'] += popularity
+        genre_popularity[genre]['count'] += 1
+
+average_popularity = {
+    genre: data['total_popularity'] / data['count']
+    for genre, data in genre_popularity.items()
+}
+
+sorted_genres = sorted(average_popularity.items(), key=lambda x: x[1], reverse=True)
+
+for i, (genre, avg_popularity) in enumerate(sorted_genres[:3], 1):
+    print(f"{i}. {genre}: Average Popularity = {avg_popularity:.2f}")
+
 
 #---------------------------------------------------------------------------------------
 
 # 6 อันดับ anime ที่มีจำนวนตอนน้อยที่สุดที่ในประเภท OVA หรือ TV
 print("\n-------------------------------------")
-print("\nTop 6 Anime with the fewest episodes")
+print("\nTop 6 Anime with the fewest episodes in type OVA or TV")
 cursor.execute('''
     SELECT title, episodes
     FROM anime
@@ -184,4 +217,4 @@ cursor.execute('''
 ''')
 top_6_le = cursor.fetchall()
 for index, anime in enumerate(top_6_le, 1):
-    print(f"{index}. {anime[0]}, episodes = {anime[1]}")
+    print(f"{index}. {anime[0]}: episodes = {anime[1]}")
