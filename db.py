@@ -218,3 +218,166 @@ cursor.execute('''
 top_6_le = cursor.fetchall()
 for index, anime in enumerate(top_6_le, 1):
     print(f"{index}. {anime[0]}: episodes = {anime[1]}")
+
+#-----------------------------------------------------------------------------------------
+
+# 5 studio ที่ได้รับความนิยมมากที่สุด
+print("\n-------------------------------------")
+print("\nTop 5 Studio with highest popularity")
+
+cursor.execute("SELECT studios, popularity FROM anime WHERE studios IS NOT NULL AND popularity IS NOT NULL")
+rows = cursor.fetchall()
+
+studio_popularity = {}
+
+for studios, popularity in rows:
+    studio_list = studios.split(', ')  # แยก studios ด้วย ', '
+    for studio in studio_list:
+        if studio == '':  # ข้ามถ้า studio ว่าง
+            continue
+        if studio not in studio_popularity:
+            studio_popularity[studio] = {'total_popularity': 0, 'count': 0}
+        
+        studio_popularity[studio]['total_popularity'] += popularity
+        studio_popularity[studio]['count'] += 1
+
+average_studio_popularity = {
+    studio: data['total_popularity'] / data['count']
+    for studio, data in studio_popularity.items()
+}
+
+# จัดเรียง studio ตามความนิยมเฉลี่ยจากสูงไปต่ำ
+sorted_studios = sorted(average_studio_popularity.items(), key=lambda x: x[1], reverse=True)
+
+for i, (studio, avg_popularity) in enumerate(sorted_studios[:5], 1):
+    print(f"{i}. {studio}: Average Popularity = {avg_popularity:.2f}")
+
+#-----------------------------------------------------------------------------------------
+
+# 5 studio ที่สร้างผลงานมากที่สุด
+print("\n-------------------------------------")
+print("\nTop 5 Studio with most works created")
+
+cursor.execute("SELECT studios FROM anime WHERE studios IS NOT NULL")
+rows = cursor.fetchall()
+
+studio_work_count = {}
+
+for studios in rows:
+    studio_list = studios[0].split(', ')  # แยก studios ด้วย ', '
+    for studio in studio_list:
+        if studio == '':  # ข้ามถ้า studio ว่าง
+            continue
+        if studio not in studio_work_count:
+            studio_work_count[studio] = 0
+        studio_work_count[studio] += 1  # นับจำนวนผลงานที่ studio นี้สร้าง
+
+# จัดเรียง studio ตามจำนวนผลงานที่สร้างจากมากไปน้อย
+sorted_studios_by_work_count = sorted(studio_work_count.items(), key=lambda x: x[1], reverse=True)
+
+for i, (studio, work_count) in enumerate(sorted_studios_by_work_count[:5], 1):
+    print(f"{i}. {studio}: Works Count = {work_count}")
+
+#-----------------------------------------------------------------------------------------
+
+# 3 อันดับ studio ที่มี score เฉลี่ยต่ำที่สุด
+print("\n-------------------------------------")
+print("\nTop 3 Studio with the lowest average score")
+
+cursor.execute("SELECT studios, score FROM anime WHERE studios IS NOT NULL AND score IS NOT NULL")
+rows = cursor.fetchall()
+
+studio_score = {}
+
+for studios, score in rows:
+    studio_list = studios.split(', ')  # แยก studios ด้วย ', '
+    for studio in studio_list:
+        if studio == '':  # ข้ามถ้า studio ว่าง
+            continue
+        if studio not in studio_score:
+            studio_score[studio] = {'total_score': 0, 'count': 0}
+        
+        studio_score[studio]['total_score'] += score
+        studio_score[studio]['count'] += 1
+
+# คำนวณคะแนนเฉลี่ยของแต่ละ studio
+average_studio_score = {
+    studio: data['total_score'] / data['count']
+    for studio, data in studio_score.items()
+}
+
+# จัดเรียง studio ตามคะแนนเฉลี่ยจากน้อยไปมาก
+sorted_studios_by_score = sorted(average_studio_score.items(), key=lambda x: x[1])
+
+for i, (studio, avg_score) in enumerate(sorted_studios_by_score[:3], 1):
+    print(f"{i}. {studio}: Average Score = {avg_score:.2f}")
+
+#-----------------------------------------------------------------------------------------
+
+# 4 อันดับ genre ที่มี score เฉลี่ยต่ำที่สุด
+print("\n-------------------------------------")
+print("\nTop 4 Genre with the lowest average score")
+
+cursor.execute("SELECT genres, score FROM anime WHERE genres IS NOT NULL AND score IS NOT NULL")
+rows = cursor.fetchall()
+
+genre_score = {}
+
+for genres, score in rows:
+    genre_list = genres.split(', ')  # แยก genres ด้วย ', '
+    for genre in genre_list:
+        if genre == '':  # ข้ามถ้า genre ว่าง
+            continue
+        if genre not in genre_score:
+            genre_score[genre] = {'total_score': 0, 'count': 0}
+        
+        genre_score[genre]['total_score'] += score
+        genre_score[genre]['count'] += 1
+
+# คำนวณคะแนนเฉลี่ยของแต่ละ genre
+average_genre_score = {
+    genre: data['total_score'] / data['count']
+    for genre, data in genre_score.items()
+}
+
+# จัดเรียง genre ตามคะแนนเฉลี่ยจากน้อยไปมาก
+sorted_genres_by_score = sorted(average_genre_score.items(), key=lambda x: x[1])
+
+for i, (genre, avg_score) in enumerate(sorted_genres_by_score[:4], 1):
+    print(f"{i}. {genre}: Average Score = {avg_score:.2f}")
+
+#-----------------------------------------------------------------------------------------
+
+# 5 อันดับ anime ที่มี rating "R - 17+ (violence & profanity)" และมีคะแนนสูงสุด
+print("\n-------------------------------------")
+print("\nTop 5 Anime rating R-17+ with the highest score")
+cursor.execute('''
+    SELECT title, score, rating
+    FROM anime
+    WHERE rating LIKE '%R - 17+%' AND score IS NOT NULL
+    ORDER BY score DESC
+    LIMIT 5;
+''')
+
+top_5_17_plus_animes = cursor.fetchall()
+
+for index, anime in enumerate(top_5_17_plus_animes, 1):
+    print(f"{index}. {anime[0]}: Score = {anime[1]}")
+
+#-----------------------------------------------------------------------------------------
+
+# 4 อันดับ rating ที่มีจำนวน anime น้อยที่สุด
+print("\n-------------------------------------")
+print("\nTop 4 rating with lowest anime quantity")
+cursor.execute('''
+    SELECT rating, COUNT(*) AS count
+    FROM anime
+    GROUP BY rating
+    ORDER BY count ASC
+    LIMIT 4;
+''')
+
+ratings_with_least_animes = cursor.fetchall()
+
+for index, (rating, count) in enumerate(ratings_with_least_animes, 1):
+    print(f"{index}. Rating: {rating} - Anime count: {count}")
