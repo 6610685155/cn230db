@@ -381,3 +381,22 @@ ratings_with_least_animes = cursor.fetchall()
 
 for index, (rating, count) in enumerate(ratings_with_least_animes, 1):
     print(f"{index}. Rating: {rating} - Anime count: {count}")
+
+#-----------------------------------------------------------------------------------------
+
+# 5 อันดับที่มา (source) ที่เยอะที่สุดของ anime
+print("\n-------------------------------------")
+print("\nTop 5 anime sources:")
+cursor.execute('''
+SELECT source, COUNT(*) AS count 
+FROM anime 
+WHERE source IS NOT NULL 
+GROUP BY source 
+ORDER BY count DESC 
+LIMIT 5
+''')
+
+top_sources = cursor.fetchall()
+
+for idx, (source, count) in enumerate(top_sources, start=1):
+    print(f"{idx}. {source}: {count} animes")
