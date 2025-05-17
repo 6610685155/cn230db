@@ -1,3 +1,5 @@
+# ณัฐศิษฏ์ ฐิติธรรมคุณ 6610685155
+
 import requests
 import sqlite3
 import time
