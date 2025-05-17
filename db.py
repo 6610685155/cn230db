@@ -400,3 +400,5 @@ top_sources = cursor.fetchall()
 
 for idx, (source, count) in enumerate(top_sources, start=1):
     print(f"{idx}. {source}: {count} animes")
+
+conn.close()
