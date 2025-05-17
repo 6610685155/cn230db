@@ -104,8 +104,45 @@ cursor.execute('''
     FROM anime;
 ''')
 all_type = cursor.fetchall()
-for anime in all_type:
-    print(f"{anime[0]}")
+for index,anime in enumerate(all_type,1):
+    print(f"{index}. {anime[0]}")
+
+#-----------------------------------------------------------------------------------------
+
+# 5 อันดับที่มา (source) ที่เยอะที่สุดของ anime
+print("\n-------------------------------------")
+print("\nTop 5 anime sources:")
+cursor.execute('''
+SELECT source, COUNT(*) AS count 
+FROM anime 
+WHERE source IS NOT NULL 
+GROUP BY source 
+ORDER BY count DESC 
+LIMIT 5
+''')
+
+top_sources = cursor.fetchall()
+
+for index, (source, count) in enumerate(top_sources, start=1):
+    print(f"{index}. {source :<15}: {count} animes")
+
+#-----------------------------------------------------------------------------------------
+
+# เปอร์เซ็นต์ของ anime จากแต่ละ source
+print("\n-------------------------------------")
+print("\nPercentage of anime from each source:")
+cursor.execute("""
+SELECT source, COUNT(*) as count, ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM anime), 2) as percentage
+FROM anime
+GROUP BY source
+ORDER BY count DESC
+""")
+
+rows = cursor.fetchall()
+
+for index,row in enumerate(rows,1):
+    print(f"{index}. {row[0]:<12} : {row[1]:5} animes ({row[2]}%)")
+
 #---------------------------------------------------------------------------------------
 
 # 5 อันดับ anime ที่มี score สูงที่สุด
@@ -119,7 +156,7 @@ cursor.execute('''
 ''')
 top_5_animes = cursor.fetchall()
 for index,anime in enumerate(top_5_animes, 1): #ใช้ enumerate เพื่อใส่เลขอันดับตามจำนวนการวนซ้ำ โดยให้ index เริ่มที่ 1
-    print(f"{index}. {anime[0]}: Score = {anime[1]}")
+    print(f"{index}. {anime[0] :<15}: Score = {anime[1]}")
     index += 1
 
 #---------------------------------------------------------------------------------------
@@ -167,7 +204,7 @@ for row in most_genre:
 sorted_genres = sorted(genre_counts.items(), key=lambda x: x[1], reverse=True)[:3]
 
 for index,(genre, count) in enumerate(sorted_genres, 1):
-    print(f"{index}. {genre}: count = {count}")
+    print(f"{index}. {genre :<10}: count = {count}")
 
 #---------------------------------------------------------------------------------------
 
@@ -198,8 +235,8 @@ average_popularity = {
 
 sorted_genres = sorted(average_popularity.items(), key=lambda x: x[1], reverse=True)
 
-for i, (genre, avg_popularity) in enumerate(sorted_genres[:3], 1):
-    print(f"{i}. {genre}: Average Popularity = {avg_popularity:.2f}")
+for index, (genre, avg_popularity) in enumerate(sorted_genres[:3], 1):
+    print(f"{index}. {genre :<10}: Average Popularity = {avg_popularity:.2f}")
 
 
 #---------------------------------------------------------------------------------------
@@ -217,7 +254,7 @@ cursor.execute('''
 ''')
 top_6_le = cursor.fetchall()
 for index, anime in enumerate(top_6_le, 1):
-    print(f"{index}. {anime[0]}: episodes = {anime[1]}")
+    print(f"{index}. {anime[0] :<20}: episodes = {anime[1]}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -249,8 +286,8 @@ average_studio_popularity = {
 # จัดเรียง studio ตามความนิยมเฉลี่ยจากสูงไปต่ำ
 sorted_studios = sorted(average_studio_popularity.items(), key=lambda x: x[1], reverse=True)
 
-for i, (studio, avg_popularity) in enumerate(sorted_studios[:5], 1):
-    print(f"{i}. {studio}: Average Popularity = {avg_popularity:.2f}")
+for index, (studio, avg_popularity) in enumerate(sorted_studios[:5], 1):
+    print(f"{index}. {studio :<15}: Average Popularity = {avg_popularity:.2f}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -275,8 +312,8 @@ for studios in rows:
 # จัดเรียง studio ตามจำนวนผลงานที่สร้างจากมากไปน้อย
 sorted_studios_by_work_count = sorted(studio_work_count.items(), key=lambda x: x[1], reverse=True)
 
-for i, (studio, work_count) in enumerate(sorted_studios_by_work_count[:5], 1):
-    print(f"{i}. {studio}: Works Count = {work_count}")
+for index, (studio, work_count) in enumerate(sorted_studios_by_work_count[:5], 1):
+    print(f"{index}. {studio :<15}: Works Count = {work_count}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -309,8 +346,8 @@ average_studio_score = {
 # จัดเรียง studio ตามคะแนนเฉลี่ยจากน้อยไปมาก
 sorted_studios_by_score = sorted(average_studio_score.items(), key=lambda x: x[1])
 
-for i, (studio, avg_score) in enumerate(sorted_studios_by_score[:3], 1):
-    print(f"{i}. {studio}: Average Score = {avg_score:.2f}")
+for index, (studio, avg_score) in enumerate(sorted_studios_by_score[:3], 1):
+    print(f"{index}. {studio :<15}: Average Score = {avg_score:.2f}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -343,8 +380,8 @@ average_genre_score = {
 # จัดเรียง genre ตามคะแนนเฉลี่ยจากน้อยไปมาก
 sorted_genres_by_score = sorted(average_genre_score.items(), key=lambda x: x[1])
 
-for i, (genre, avg_score) in enumerate(sorted_genres_by_score[:4], 1):
-    print(f"{i}. {genre}: Average Score = {avg_score:.2f}")
+for index, (genre, avg_score) in enumerate(sorted_genres_by_score[:4], 1):
+    print(f"{index}. {genre :<10}: Average Score = {avg_score:.2f}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -362,7 +399,7 @@ cursor.execute('''
 top_5_17_plus_animes = cursor.fetchall()
 
 for index, anime in enumerate(top_5_17_plus_animes, 1):
-    print(f"{index}. {anime[0]}: Score = {anime[1]}")
+    print(f"{index}. {anime[0] :<20}: Score = {anime[1]}")
 
 #-----------------------------------------------------------------------------------------
 
@@ -380,25 +417,6 @@ cursor.execute('''
 ratings_with_least_animes = cursor.fetchall()
 
 for index, (rating, count) in enumerate(ratings_with_least_animes, 1):
-    print(f"{index}. Rating: {rating} - Anime count: {count}")
-
-#-----------------------------------------------------------------------------------------
-
-# 5 อันดับที่มา (source) ที่เยอะที่สุดของ anime
-print("\n-------------------------------------")
-print("\nTop 5 anime sources:")
-cursor.execute('''
-SELECT source, COUNT(*) AS count 
-FROM anime 
-WHERE source IS NOT NULL 
-GROUP BY source 
-ORDER BY count DESC 
-LIMIT 5
-''')
-
-top_sources = cursor.fetchall()
-
-for idx, (source, count) in enumerate(top_sources, start=1):
-    print(f"{idx}. {source}: {count} animes")
+    print(f"{index}. Rating: {rating :<15} : Anime count = {count}")
 
 conn.close()
